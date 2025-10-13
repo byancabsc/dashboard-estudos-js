@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano de Estudos - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="sidebar">
+        <div class="sidebar-header">
+            Olá, Estudante! <span style="font-size: 0.5em; display: block; opacity: 0.7;">Confie no processo.</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="#" onclick="showOverview()"><span class="icon">🏠</span> Dashboard</a></li>
+            <li class="sidebar-item"><a href="#" onclick="showTopicConfig()"><span class="icon">⚙️</span> Configurações de Tópicos</a></li>
+            <li class="sidebar-item"><a href="#" onclick="showAllNotes()"><span class="icon">📝</span> Todas as Anotações</a></li>
+        </ul>
+        
+        <div class="sidebar-title">GERENCIAMENTO DE DADOS</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="#" onclick="exportData()"><span class="icon">⬇️</span> Exportar Progresso</a></li>
+            <li class="sidebar-item"><a href="#" onclick="document.getElementById('importFile').click();"><span class="icon">⬆️</span> Importar Progresso</a></li>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+        </ul>
+
+        <div class="sidebar-title">SEUS MÓDULOS DE ESTUDO</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="#" onclick="showSubject('portugues')"><span class="icon">🇧🇷</span> Língua Portuguesa</a></li>
+            <li class="sidebar-item"><a href="#" onclick="showSubject('constitucional')"><span class="icon">⚖️</span> Direito Constitucional</a></li>
+            <li class="sidebar-item"><a href="#" onclick="showSubject('administrativo')"><span class="icon">📝</span> Direito Administrativo</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰</button>
+        
+        <div id="subject-content">
+            <h1>Selecione uma matéria no menu lateral para começar.</h1>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

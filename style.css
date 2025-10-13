@@ -1,0 +1,339 @@
+/* Estilos CSS (Tema Roxo e Preto - Dark Mode) */
+:root {
+    --sidebar-width: 280px;
+    --main-bg: #1b1b1b; /* Fundo da Página */
+    --sidebar-bg: #1e1e1e; /* Sidebar */
+    --link-color: #ffffff; 
+    --link-hover-bg: #303030;
+    --active-link-bg: #7e57c2; /* Roxo claro/médio para link ativo */
+    --active-link-text: #ffffff; 
+    --card-bg: #1e1e1e; /* Fundo dos cards na área de conteúdo */
+    --card-border: #333333;
+    --font-color: #f0f0f0; 
+    --accent-color: #bb86fc; /* Roxo claro/lilás para acentos/ênfase */
+    --status-not-started: #b00020; 
+    --status-in-progress: #ffeb3b; 
+    --status-completed: #03dac6; 
+    --button-primary: #bb86fc; 
+    --header-bg-content: #4a148c; /* Cor do Cabeçalho Padrão: Roxo profundo */
+    --note-indicator-color: #bb86fc;
+    --note-button-color: #333333; 
+
+    /* Cores do Dashboard (Visão Geral) */
+    --overview-header-bg: #4a148c;
+    --overview-progress-bar-bg: #2c2c2c;
+    --overview-progress-bar-fill: #bb86fc;
+    --overview-progress-text: #f0f0f0; 
+    --overview-completed-bg: #00857a;
+    --overview-completed-fill: #03dac6;
+}
+
+body {
+    font-family: 'Poppins', sans-serif; 
+    margin: 0;
+    padding: 0;
+    background-color: var(--main-bg);
+    color: var(--font-color);
+    display: flex;
+}
+
+/* Barra Lateral */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    padding: 20px 0;
+    height: 100vh;
+    position: fixed;
+    overflow-y: auto;
+    border-top-right-radius: 20px; 
+    border-bottom-right-radius: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.sidebar.hidden {
+    transform: translateX(-100%);
+}
+body.sidebar-hidden .main-content {
+    margin-left: 0;
+    width: 100%;
+}
+.sidebar-header {
+    color: var(--link-color);
+    font-size: 1.8em;
+    font-weight: 700;
+    padding: 0 30px 20px;
+}
+.sidebar-menu {
+    list-style: none;
+    padding: 0 15px;
+    margin: 0;
+}
+.sidebar-item a {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--link-color);
+    border-radius: 10px; 
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.sidebar-item a:hover {
+    background-color: var(--link-hover-bg);
+}
+.sidebar-item a.active {
+    background-color: var(--active-link-bg);
+    font-weight: 600;
+    color: var(--active-link-text);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.sidebar-title {
+    font-weight: 600;
+    padding: 10px 30px;
+    color: #d1c4e9; 
+    font-size: 0.85em;
+    margin-top: 15px;
+    text-transform: uppercase;
+}
+.icon {
+    margin-right: 15px;
+    font-size: 1.2em;
+}
+
+/* Conteúdo Principal */
+.main-content {
+    /* CRÍTICO PARA O BOTÃO */
+    position: relative; 
+    
+    margin-left: var(--sidebar-width);
+    /* Removido o padding top de 40px para evitar conflitos */
+    padding: 0 40px 40px 40px; 
+    
+    flex-grow: 1;
+    width: calc(100% - var(--sidebar-width));
+    box-sizing: border-box;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    
+    /* Novo: Layout flexível vertical */
+    display: flex; 
+    flex-direction: column;
+}
+h1 {
+    color: var(--accent-color); 
+    /* Adicionado margin-top para criar espaço sob o botão */
+    margin-top: 30px; 
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-weight: 700;
+}
+
+/* Botão Sidebar Toggle (AGORA ABSOLUTO DENTRO DE main-content) */
+.toggle-sidebar-btn {
+    position: absolute; /* Flutua dentro do main-content */
+    top: 15px;
+    right: 40px; /* Alinha à direita com o padding de 40px */
+    z-index: 9999; /* Z-INDEX EXTREMO PARA APARECER */
+    
+    background-color: var(--button-primary);
+    color: black;
+    /* BORDA DE TESTE PARA GARANTIR VISIBILIDADE */
+    border: 3px solid red; 
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.toggle-sidebar-btn:hover {
+    background-color: #9d46ff;
+    color: white;
+    border-color: white;
+}
+
+/* Cards de Tópicos PRINCIPAIS */
+.main-topic-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px; 
+    margin-bottom: 25px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    border-left: 6px solid; 
+    border-color: var(--card-border);
+    transition: border-color 0.3s ease;
+    overflow: hidden;
+}
+.main-topic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--header-bg-content); 
+    border-bottom: 1px solid var(--card-border);
+}
+.main-topic-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--link-color); 
+}
+
+/* Subtópicos */
+.subtopic-area {
+    padding: 10px 20px 20px;
+}
+.subtopic-item-wrapper {
+    margin-bottom: 10px;
+}
+.subtopic-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.subtopic-item-wrapper:last-child .subtopic-item {
+    border-bottom: none;
+}
+.subtopic-title {
+    color: var(--font-color);
+    font-size: 1em;
+    font-weight: 500;
+    flex-grow: 1; 
+}
+
+/* --- ESTILOS DE ANOTAÇÃO INLINE --- */
+.note-input-area {
+    padding: 15px 20px 20px;
+    background-color: #2c2c2c; 
+    border-top: 1px solid var(--card-border);
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    margin-top: 0; 
+}
+.note-input-area.hidden {
+    display: none;
+}
+.note-input-area textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    font-size: 0.9em;
+    background-color: #121212; 
+    color: var(--font-color);
+}
+.note-input-area label {
+    font-size: 0.85em;
+    color: var(--accent-color);
+}
+
+/* Botões de Controle e Status */
+.btn-save, .btn-note {
+    background-color: var(--button-primary);
+    color: black; 
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+    font-weight: 600;
+    font-size: 0.9em;
+    white-space: nowrap; 
+}
+.btn-save:hover {
+    background-color: #9d46ff; 
+    color: white;
+}
+.subtopic-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+    margin-left: 15px; 
+}
+.btn-note {
+    background-color: var(--note-button-color); 
+    color: var(--font-color);
+    padding: 6px 12px;
+    margin-top: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-size: 0.8em;
+    font-weight: 500;
+}
+.btn-note.has-note {
+    background-color: var(--note-indicator-color); 
+    color: black; 
+    font-weight: 700;
+}
+.btn-note:hover {
+    opacity: 0.8;
+}
+
+/* Estilos de Status */
+.topic-status-display {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 90px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.85em;
+    text-transform: uppercase;
+}
+.status-nao-iniciado {
+    background-color: var(--status-not-started);
+    color: white;
+}
+.status-em-andamento {
+    background-color: var(--status-in-progress);
+    color: black; 
+}
+.status-concluido {
+    background-color: var(--status-completed);
+    color: black; 
+}
+
+/* Estilos de Configuração */
+.config-area textarea {
+    background-color: #121212;
+    color: var(--font-color);
+    border: 1px solid #555555;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 6px;
+    resize: vertical;
+    min-height: 200px;
+    margin-top: 5px;
+    font-family: monospace; 
+    font-size: 0.9em;
+}
+.btn-config {
+    background-color: #4a148c; 
+    color: white;
+    margin-left: auto; 
+    display: block;
+}
+.config-message {
+    color: #03dac6;
+    font-weight: bold;
+    float: left; 
+    padding-top: 10px;
+}
+
+/* Estilo para a área de edição (na página de todas as notas, agora apenas visualização) */
+.note-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.note-block {
+    white-space: pre-wrap;
+}
