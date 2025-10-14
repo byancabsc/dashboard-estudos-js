@@ -2,7 +2,7 @@
 :root {
     --primary-color: #4a3aff; /* Roxo principal, para destaques, links e botões */
     --secondary-color: #6c63ff; /* Um roxo um pouco mais claro para hover */
-    --text-color-dark: #333333; /* Texto principal escuro */
+    --text-color-dark: #333333; /* Texto principal escuro (USADO PARA VISIBILIDADE) */
     --text-color-light: #555555; /* Texto secundário, mais suave */
     --main-bg: #f4f6fa; /* Fundo geral da página (Light Grey) */
     --sidebar-bg: #ffffff; /* Fundo da sidebar (Branco) */
@@ -27,15 +27,15 @@
     --accent-color: var(--primary-color); 
 
     /* Cores do Dashboard (Visão Geral) */
-    --overview-header-bg: #4a3aff;
+    --overview-header-bg: #4a3aff; /* Roxo Escuro Visível */
     --overview-progress-bar-bg: #e0e0e0;
     --overview-progress-bar-fill: #4a3aff;
-    --overview-progress-text: var(--text-color-dark); 
-    --overview-completed-bg: #38a169; /* Verde escuro */
-    --overview-completed-fill: #34d399; /* Verde claro */
+    --overview-progress-text: white; /* Texto branco no header roxo */
+    --overview-completed-bg: #38a169; 
+    --overview-completed-fill: #34d399; 
 
-    --shadow-light: rgba(0, 0, 0, 0.05); /* Sombra leve */
-    --sidebar-width: 280px; /* Mantido */
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --sidebar-width: 280px; 
 }
 
 body {
@@ -43,11 +43,11 @@ body {
     margin: 0;
     padding: 0;
     background-color: var(--main-bg);
-    color: var(--text-color-dark);
+    color: var(--text-color-dark); 
     display: flex;
 }
 
-/* Barra Lateral - CORREÇÃO DE PADRÃO */
+/* Barra Lateral */
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--sidebar-bg);
@@ -59,6 +59,7 @@ body {
     border-bottom-right-radius: 20px;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); 
     transition: transform 0.3s ease;
+    z-index: 10; 
 }
 
 .sidebar.hidden {
@@ -84,7 +85,7 @@ body.sidebar-hidden .main-content {
     align-items: center;
     padding: 12px 15px;
     text-decoration: none;
-    color: var(--text-color-light);
+    color: var(--text-color-light); 
     border-radius: 10px; 
     margin-bottom: 8px;
     transition: all 0.2s;
@@ -102,16 +103,15 @@ body.sidebar-hidden .main-content {
 .sidebar-title {
     font-weight: 600;
     padding: 10px 30px;
-    color: var(--text-color-light);
+    color: var(--text-color-light); 
     font-size: 0.85em;
     margin-top: 15px;
     text-transform: uppercase;
-    /* CORREÇÃO: Garante espaçamento em temas claros */
     border-top: 1px solid var(--card-border); 
     padding-top: 15px;
 }
 .sidebar-title:first-of-type {
-    border-top: none; /* Remove a linha do primeiro título */
+    border-top: none; 
     padding-top: 10px;
 }
 .icon {
@@ -121,39 +121,43 @@ body.sidebar-hidden .main-content {
 
 /* Conteúdo Principal */
 .main-content {
-    /* CRÍTICO PARA O BOTÃO */
     position: relative; 
     
     margin-left: var(--sidebar-width);
-    /* Mantém o padding para o conteúdo, mas garante que o topo seja 40px para o H1 */
     padding: 40px; 
     
     flex-grow: 1;
-    width: calc(100% - var(--sidebar-width));
+    width: calc(100% - var(--sidebar-width) - 80px); 
     box-sizing: border-box;
     transition: margin-left 0.3s ease, width 0.3s ease;
     
     display: flex; 
     flex-direction: column;
 }
-h1 {
+
+.main-content h1 {
     color: var(--primary-color); 
-    margin-top: 0; /* CORREÇÃO: Remove margem top duplicada */
-    margin-bottom: 30px;
+    margin-top: 0; 
+    margin-bottom: 5px; 
     font-size: 2.2em;
     font-weight: 700;
 }
+.main-content #subject-content p {
+    color: var(--text-color-light);
+    margin-bottom: 30px; 
+}
 
-/* Botão Sidebar Toggle (POSICIONAMENTO CORRIGIDO) */
+
+/* Botão Sidebar Toggle (POSICIONAMENTO CORRIGIDO e VISÍVEL) */
 .toggle-sidebar-btn {
     position: absolute; 
     top: 15px;
-    right: 40px; /* Alinha à direita com o padding de 40px */
+    right: 40px; 
     z-index: 9999; 
     
     background-color: var(--primary-color);
     color: white;
-    border: 3px solid transparent; /* BORDA TRANSPARENTE, MAS MANTIDA PARA DEBUG */
+    border: none; /* Borda de teste removida */
     padding: 8px 14px;
     border-radius: 8px;
     font-weight: 600;
@@ -163,8 +167,6 @@ h1 {
 
 .toggle-sidebar-btn:hover {
     background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
-    color: white;
 }
 
 /* Cards de Tópicos PRINCIPAIS */
@@ -184,13 +186,13 @@ h1 {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background-color: var(--overview-header-bg); /* CORREÇÃO: Usa a cor escura do cabeçalho */
+    background-color: var(--overview-header-bg); 
     border-bottom: 1px solid var(--card-border);
 }
 .main-topic-title {
     font-size: 1.3em;
     font-weight: 600;
-    color: white; /* CORREÇÃO: Texto branco no fundo roxo escuro */
+    color: white; 
 }
 
 /* Subtópicos */
@@ -211,7 +213,7 @@ h1 {
     border-bottom: none;
 }
 .subtopic-title {
-    color: var(--text-color-dark);
+    color: var(--text-color-dark); 
     font-size: 1em;
     font-weight: 500;
     flex-grow: 1; 
@@ -349,6 +351,394 @@ h1 {
     gap: 10px;
     margin-top: 20px;
 }
+
+/* --- ESTILOS CORRIGIDOS PARA O SHOWALLNOTES --- */
 .note-block {
-    white-space: pre-wrap;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px var(--shadow-light);
+    padding: 30px; /* Mais padding interno para respirar */
+    display: flex;
+    flex-direction: column;
+}
+
+.note-header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+/* Estilo do Input de Título */
+.note-title-input {
+    width: 100%;
+    border: none;
+    font-size: 1.8em !important; 
+    font-weight: 700;
+    color: var(--primary-color) !important;
+    padding: 0;
+    background: transparent;
+    border-bottom: 2px solid transparent; 
+    transition: border-bottom-color 0.2s;
+    line-height: 1.2;
+}
+
+.note-title-input:focus {
+    border-bottom-color: var(--secondary-color); 
+    outline: none;
+}
+
+/* Campo de Texto da Anotação */
+.note-content-textarea {
+    width: 100%;
+    min-height: 200px; 
+    padding: 15px;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    resize: vertical;
+    box-sizing: border-box;
+    font-size: 1em;
+    background-color: var(--main-bg); 
+    color: var(--text-color-dark);
+    margin-top: 10px;
+    font-family: inherit;
+    line-height: 1.6;
+}
+.note-content-textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Label/Título da Seção de Notas */
+.note-section-label {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-color-light);
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Botões de Ação na Nota */
+.note-actions-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+/* Botão Salvar (Verde) */
+.btn-save-note {
+    background-color: #38a169; 
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+.btn-save-note:hover {
+    background-color: #2f855a;
+    transform: translateY(-1px);
+}
+
+/* Botão Excluir (Vermelho) */
+.btn-delete-note {
+    background-color: var(--status-not-started); 
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+.btn-delete-note:hover {
+    background-color: #d83b3b;
+    transform: translateY(-1px);
+}
+
+/* Estilos para a nova área de criação de módulos */
+.new-module-creator {
+    margin-top: 30px;
+    padding: 20px 0;
+}
+
+/* Estilos para a nova área de criação de módulos (foco no botão) */
+.module-input-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 15px;
+}
+
+/* Estilo do Input de Texto (melhorando o visual) */
+.config-input-text { 
+    flex-grow: 1;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--card-border);
+    background-color: var(--main-bg); 
+    color: var(--text-color-dark);
+    font-size: 1em;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.config-input-text:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.config-message-info {
+    color: var(--text-color-light);
+    font-size: 0.9em;
+}
+
+/* Botão "Adicionar Módulo" (Usando um estilo mais primário e completo) */
+#btn-create-module {
+    background-color: var(--primary-color); /* Roxo/Azul forte */
+    color: white;
+    font-weight: 600;
+    padding: 12px 20px; /* Maior que os botões Save/Delete internos */
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    border: none;
+    white-space: nowrap; /* Impede que quebre a linha */
+}
+
+
+#btn-create-module:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================
+   🌈 Tema Claro Moderno - Roxo & Cinza (2025 UI Update)
+   ========================================================== */
+:root {
+  --primary-color: #4a3aff;
+  --secondary-color: #6c63ff;
+  --text-dark: #2e2e2e;
+  --text-light: #666;
+  --bg-main: #f5f6fa;
+  --bg-sidebar: #fff;
+  --bg-card: #fff;
+  --border-soft: #e6e6eb;
+  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --transition: all 0.25s ease;
+}
+
+/* ==========================================================
+   🧱 Layout Base
+   ========================================================== */
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+/* ==========================================================
+   📚 Sidebar
+   ========================================================== */
+.sidebar {
+  width: 270px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-soft);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.06);
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  padding: 24px 0;
+  height: 100vh;
+  position: fixed;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+.sidebar-header {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  padding: 0 32px 24px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0 20px;
+  margin: 0;
+}
+
+.sidebar-item a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: var(--text-light);
+  transition: var(--transition);
+}
+
+.sidebar-item a:hover {
+  background: #f4f1ff;
+  color: var(--primary-color);
+}
+
+.sidebar-item a.active {
+  background: #f3f0ff;
+  color: var(--primary-color);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(74, 58, 255, 0.1);
+}
+
+/* ==========================================================
+   🧭 Conteúdo Principal
+   ========================================================== */
+.main-content {
+  flex-grow: 1;
+  margin-left: 270px;
+  padding: 40px;
+  transition: var(--transition);
+}
+
+.main-content h1 {
+  color: var(--accent-color); 
+    margin-top: 0; 
+    margin-bottom: 5px; 
+    font-size: 2.2em;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   🗒️ Blocos de Anotações (Show All Notes)
+   ========================================================== */
+.note-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  padding: 28px;
+  margin-bottom: 28px;
+  transition: var(--transition);
+}
+
+.note-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.note-header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.note-title-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  transition: border-color 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.note-title-input:focus {
+  border-bottom-color: var(--secondary-color);
+  outline: none;
+}
+
+/* ==========================================================
+   ✍️ Campo de Texto
+   ========================================================== */
+.note-content-textarea {
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: #fafbff;
+  padding: 14px;
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.note-content-textarea:focus {
+  border-color: var(--primary-color);
+  background: #fff;
+  outline: none;
+}
+
+/* ==========================================================
+   🔘 Botões de Ação
+   ========================================================== */
+.note-actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-save-note,
+.btn-delete-note {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+}
+
+.btn-save-note {
+  background: #38a169;
+  color: #fff;
+}
+
+.btn-save-note:hover {
+  background: #2f855a;
+  transform: translateY(-1px);
+}
+
+.btn-delete-note {
+  background: #f87171;
+  color: #fff;
+}
+
+.btn-delete-note:hover {
+  background: #e53e3e;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================
+   📱 Responsividade
+   ========================================================== */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    z-index: 20;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.visible {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
 }
