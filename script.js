@@ -135,7 +135,9 @@ function importData(event) {
     reader.readAsText(file);
 }
 
-// --- Funções de Configuração de Tópicos ---
+// =======================================================
+// FUNÇÃO DE RENDERIZAÇÃO DA PÁGINA DE CONFIGURAÇÃO (ATUALIZADA)
+// =======================================================
 
 function showTopicConfig() {
     const currentData = loadData();
@@ -143,17 +145,34 @@ function showTopicConfig() {
     htmlContent += '<p>Adicione ou remova tópicos para cada matéria. **Cada linha é um tópico.** Use um traço inicial (<code>- Subtópico</code>) para criar uma hierarquia.</p>';
     htmlContent += '<p style="color: var(--status-not-started); font-weight: bold;">Atenção: Ao salvar, o progresso (status e notas) será perdido para QUALQUER tópico que for alterado, movido ou removido.</p>';
     
+    // 1. Geração das áreas de edição de módulos existentes
     Object.keys(currentData).forEach(key => {
+        const moduleName = currentData[key].title || key.charAt(0).toUpperCase() + key.slice(1); 
+
         htmlContent += `
             <div class="config-area">
-                <h2>${currentData[key].title}</h2>
+                <h2>${moduleName}</h2>
                 <textarea id="config-${key}" class="form-control" rows="10">${currentData[key].topics.join('\n')}</textarea>
                 <span id="message-${key}" class="config-message"></span>
-                <button class="btn-save btn-config" onclick="saveTopics('${key}')">Salvar ${currentData[key].title}</button>
+                <button class="btn-save btn-config" onclick="saveTopics('${key}')">Salvar ${moduleName}</button>
+                <button class="btn-delete btn-config" onclick="deleteModule('${key}', '${moduleName}')" style="margin-left: 10px;">Excluir Módulo</button>
                 <div style="clear: both;"></div>
             </div>
         `;
     });
+
+    // 2. SEÇÃO DE CRIAÇÃO DE NOVOS MÓDULOS
+    htmlContent += `
+        <div class="new-module-creator config-area">
+            <h2>Criar Novo Módulo</h2>
+            <p class="config-message-info">Insira o nome do novo Módulo/Matéria.</p>
+            <div class="module-input-group">
+                <input type="text" id="new-module-name" placeholder="Ex: Direito do Trabalho, Matemática Avançada, etc." class="config-input-text">
+                <button id="btn-create-module" class="btn-save btn-config" onclick="createNewModule()">Adicionar Módulo</button>
+            </div>
+            <span id="module-creation-feedback" class="config-message"></span>
+        </div>
+    `;
 
     contentDiv.innerHTML = htmlContent;
     updateActiveLink('config');
@@ -169,6 +188,7 @@ function saveTopics(subjectKey) {
     
     const newProgress = {};
     
+    // Mapeia o progresso existente para a nova lista de tópicos
     oldTopics.forEach((oldTopic, oldIndex) => {
         const oldKey = `${subjectKey}-${oldIndex}`;
         const newIndex = newTopics.indexOf(oldTopic);
@@ -179,6 +199,7 @@ function saveTopics(subjectKey) {
             newProgress[newKey + '-notes'] = localStorage.getItem(oldKey + '-notes') || '';
         } 
         
+        // Remove dados antigos
         localStorage.removeItem(oldKey + '-status');
         localStorage.removeItem(oldKey + '-notes');
     });
@@ -186,6 +207,7 @@ function saveTopics(subjectKey) {
     currentData[subjectKey].topics = newTopics;
     saveData(currentData); 
 
+    // Salva o progresso mapeado
     for (const key in newProgress) {
         localStorage.setItem(key, newProgress[key]);
     }
@@ -193,6 +215,71 @@ function saveTopics(subjectKey) {
     messageSpan.textContent = 'Tópicos salvos! Progresso de tópicos inalterados foi mantido.';
     setTimeout(() => messageSpan.textContent = '', 6000);
 }
+
+// =======================================================
+// NOVAS FUNÇÕES PARA ADIÇÃO E EXCLUSÃO DE MÓDULOS
+// =======================================================
+
+function createNewModule() {
+    const newModuleNameInput = document.getElementById('new-module-name');
+    const feedbackSpan = document.getElementById('module-creation-feedback');
+    const newModuleName = newModuleNameInput.value.trim();
+
+    if (!newModuleName) {
+        feedbackSpan.textContent = "Por favor, insira um nome para o novo módulo.";
+        feedbackSpan.style.color = 'var(--status-not-started)';
+        return;
+    }
+
+    const currentData = loadData();
+    
+    // Cria uma chave segura (sem acentos e minúscula)
+    const moduleKey = newModuleName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, ''); 
+
+    // Checar duplicidade de chave
+    if (currentData.hasOwnProperty(moduleKey)) {
+        feedbackSpan.textContent = `O módulo "${newModuleName}" já existe.`;
+        feedbackSpan.style.color = 'var(--status-not-started)';
+        return;
+    }
+
+    // Adiciona o novo módulo com o nome original
+    currentData[moduleKey] = {
+        title: newModuleName,
+        topics: ["- Novo tópico aqui. Clique em Salvar para editá-lo."],
+    };
+    
+    saveData(currentData); 
+    
+    feedbackSpan.textContent = `Módulo "${newModuleName}" adicionado com sucesso! Recarregando...`;
+    feedbackSpan.style.color = 'var(--status-completed)';
+
+    // Recarrega a página para atualizar a sidebar e a lista de configurações
+    setTimeout(() => {
+        window.location.reload(); 
+    }, 1500);
+}
+
+function deleteModule(subjectKey, moduleName) {
+    if (confirm(`Deseja realmente excluir o módulo "${moduleName}"? Isso apagará TODOS os tópicos e o progresso salvo!`)) {
+        const currentData = loadData();
+        
+        // 1. Remove do objeto de dados
+        delete currentData[subjectKey];
+        saveData(currentData);
+        
+        // 2. Remove todo o progresso associado a essa chave no localStorage
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith(subjectKey + '-')) {
+                localStorage.removeItem(key);
+            }
+        });
+
+        alert(`Módulo "${moduleName}" excluído com sucesso! Recarregando...`);
+        window.location.reload(); 
+    }
+}
+
 
 // --- Funções de Visualização e Lógica de Subtópicos ---
 
@@ -449,9 +536,132 @@ function saveInlineNote(saveId) {
     
     if (newNote !== oldNote) {
         const currentSubjectKey = saveId.substring(0, saveId.indexOf('-'));
+        // Recarregar o assunto para atualizar o status/botão de nota
         showSubject(currentSubjectKey); 
     }
 }
+
+// =========================================================================
+// FUNÇÕES DE EDIÇÃO E EXCLUSÃO DE NOTAS (PÁGINA TODAS AS ANOTAÇÕES)
+// =========================================================================
+
+function showAllNotes() {
+    const data = loadData();
+    let html = '<h1>Todas as Anotações</h1>';
+    let totalNotes = 0;
+
+    Object.keys(data).forEach(subjectKey => {
+        const subject = data[subjectKey];
+        let hasNotesInSubject = false;
+        let subjectNotesHtml = '';
+        
+        subject.topics.forEach((topicText, index) => {
+            const saveId = `${subjectKey}-${index}`;
+            const note = localStorage.getItem(saveId + '-notes');
+
+            if (note && note.trim() !== '') {
+                hasNotesInSubject = true;
+                totalNotes++;
+                const isSubtopic = topicText.startsWith('-');
+                const cleanTopicText = isSubtopic
+                    ? topicText.substring(1).trim()
+                    : topicText.trim();
+                
+                // O TÍTULO É AGORA UM INPUT EDITÁVEL
+                subjectNotesHtml += `
+                    <div class="note-block" id="note-block-${saveId}">
+
+                        <div class="note-header-controls">
+                            <div style="flex-grow: 1; margin-right: 20px;">
+                                <label class="note-section-label">Módulo: ${subject.title}</label>
+                                <input type="text" id="note-title-${saveId}" 
+                                    class="note-title-input"
+                                    value="${cleanTopicText}" 
+                                    placeholder="Título do Tópico">
+                            </div>
+                            <button class="btn-save btn-save-note" 
+                                    onclick="saveFullNote('${subjectKey}', ${index}, '${saveId}')">
+                                Salvar
+                            </button>
+                        </div>
+                        
+                        <label for="note-content-${saveId}" class="note-section-label">Conteúdo da Anotação:</label>
+                        <textarea id="note-content-${saveId}" 
+                            class="note-content-textarea"
+                        >${note}</textarea>
+
+                        <div class="note-actions-footer">
+                             <button class="btn-delete-note" 
+                                    onclick="deleteNote('${saveId}')">
+                                Excluir Nota
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // Adiciona o título do módulo se houver notas para ele
+        if (subjectNotesHtml) {
+             html += `<h2 style="color: var(--text-color-dark); margin-top:20px; border-bottom: 1px solid var(--card-border); padding-bottom: 5px;">${subject.title}</h2>`;
+            html += subjectNotesHtml;
+        }
+    });
+
+    if (totalNotes === 0) {
+        html += '<p style="margin-top: 20px; color: var(--text-color-light);">Nenhuma anotação encontrada. Adicione notas em seus tópicos de estudo para vê-las aqui.</p>';
+    }
+
+    const container = document.getElementById('subject-content'); 
+    if (container) container.innerHTML = html;
+    
+    updateActiveLink('notes-list');
+}
+
+/**
+ * Salva o conteúdo da nota e, opcionalmente, atualiza o nome do tópico no defaultData.
+ */
+function saveFullNote(subjectKey, topicIndex, saveId) {
+    const newTitle = document.getElementById(`note-title-${saveId}`).value.trim();
+    const newContent = document.getElementById(`note-content-${saveId}`).value.trim();
+    
+    // 1. Salva o novo conteúdo da nota no localStorage
+    localStorage.setItem(saveId + '-notes', newContent);
+    
+    // 2. Atualiza o título do tópico, se tiver mudado
+    const currentData = loadData();
+    const oldTopicText = currentData[subjectKey].topics[topicIndex];
+    
+    // Verifica se o tópico era um subtópico para manter o prefixo '-'
+    const prefix = oldTopicText.startsWith('-') ? '- ' : '';
+    const newTopicTextWithPrefix = prefix + newTitle;
+    
+    if (oldTopicText !== newTopicTextWithPrefix) {
+        // Se o título mudou, atualiza o array de tópicos
+        currentData[subjectKey].topics[topicIndex] = newTopicTextWithPrefix;
+        saveData(currentData);
+        alert('Nota e Título do Tópico atualizados com sucesso! (Pode ser necessário recarregar a página para ver a mudança no menu de Configurações)');
+    } else {
+        alert('Nota atualizada com sucesso!');
+    }
+    
+    // Recarrega a lista de notas para refletir as mudanças
+    showAllNotes();
+}
+
+/**
+ * Exclui a nota (conteúdo e status) e recarrega a página.
+ */
+function deleteNote(saveId) {
+    if (confirm("Tem certeza que deseja EXCLUIR esta anotação? O status do tópico será resetado para 'Não iniciado'.")) {
+        localStorage.removeItem(saveId + '-notes');
+        localStorage.removeItem(saveId + '-status'); 
+        alert('Anotação excluída com sucesso.');
+        showAllNotes(); // Recarrega a lista
+    }
+}
+
+
 // --- Funções Auxiliares de Navegação e Visão Geral (Dashboard Aprimorado) ---
 function showOverview() {
     const currentData = loadData();
@@ -488,7 +698,7 @@ function showOverview() {
                 </div>
                 
                 <div style="padding: 15px 20px;">
-                    <div style="font-size:1em; color:var(--overview-progress-text); font-weight: 500; margin-bottom: 8px;">
+                    <div style="font-size:1em; color:var(--text-color-dark); font-weight: 500; margin-bottom: 8px;">
                         ${completedMainTopics} de ${totalMainTopics} tópicos concluídos
                     </div>
                     
@@ -537,56 +747,6 @@ function toggleSidebar() {
         sidebar.classList.add('hidden');
         body.classList.add('sidebar-hidden');
     }
-}
-
-function showAllNotes() {
-    const data = loadData();
-    let html = '<h1>Todas as Anotações</h1>';
-    let totalNotes = 0;
-
-    Object.keys(data).forEach(subjectKey => {
-        const subject = data[subjectKey];
-        let hasNotesInSubject = false;
-        let subjectNotesHtml = '';
-        
-        subject.topics.forEach((topicText, index) => {
-            const saveId = `${subjectKey}-${index}`;
-            const note = localStorage.getItem(saveId + '-notes');
-
-            if (note && note.trim() !== '') {
-                hasNotesInSubject = true;
-                totalNotes++;
-                const isSubtopic = topicText.startsWith('-');
-                const cleanTopicText = isSubtopic
-                    ? topicText.substring(1).trim()
-                    : topicText.trim();
-
-                subjectNotesHtml += `
-                    <div class="note-block" style="background-color:var(--card-bg);
-                                padding:15px;margin-bottom:15px;border-radius:8px;
-                                border:1px solid var(--card-border);">
-                        <div class="note-title" style="color: var(--accent-color); font-size:1.1em; margin-bottom: 5px;">
-                            <strong>${subject.title}:</strong> ${cleanTopicText}
-                        </div>
-                        <p style="white-space: pre-wrap; font-size:0.95em; color: #ccc;">${note}</p>
-                    </div>`;
-            }
-        });
-
-        if (hasNotesInSubject) {
-            html += `<h2 style="color: #ccc; margin-top:20px; border-bottom: 1px solid #444; padding-bottom: 5px;">${subject.title}</h2>`;
-            html += subjectNotesHtml;
-        }
-    });
-
-    if (totalNotes === 0) {
-        html += '<p style="margin-top: 20px;">Nenhuma anotação encontrada. Adicione notas em seus tópicos de estudo.</p>';
-    }
-
-    const container = document.getElementById('subject-content'); 
-    if (container) container.innerHTML = html;
-    
-    updateActiveLink('notes-list');
 }
 
 // Garante que o estado inicial do localStorage seja o default se for a primeira vez
