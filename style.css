@@ -742,3 +742,65 @@ body {
     padding: 20px;
   }
 }
+
+/* --- Novo CSS para o Editor Rich Text --- */
+
+.rich-text-editor-container {
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    background-color: var(--input-bg);
+    margin-top: 5px;
+}
+
+.rich-text-toolbar {
+    display: flex;
+    gap: 5px;
+    padding: 8px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.rich-text-toolbar button {
+    background: var(--button-bg);
+    color: var(--text-color-dark);
+    border: 1px solid var(--card-border);
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-style: normal; /* Override default italic in button */
+    transition: background-color 0.2s;
+}
+
+.rich-text-toolbar button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.rich-text-content {
+    min-height: 100px;
+    padding: 10px;
+    outline: none;
+    line-height: 1.6;
+    color: var(--text-color-dark);
+    /* Garante que o usuário possa rolar se o conteúdo for grande */
+    overflow-y: auto; 
+    max-height: 300px;
+}
+
+/* Estilos de conteúdo (garantir que listas e negritos funcionem) */
+.rich-text-content ul, 
+.rich-text-content ol {
+    padding-left: 25px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.note-content-textarea { /* Renomeado para .note-content-editor no AllNotes */
+    /* Remova estilos de textarea, pois será substituído */
+    display: none; 
+}
+
+/* Adicione um estilo para o botão ativo (se for mais fácil) */
+.rich-text-toolbar button.active {
+    background-color: var(--accent-color);
+    color: white;
+}
