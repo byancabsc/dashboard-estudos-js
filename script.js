@@ -136,7 +136,7 @@ function importData(event) {
 }
 
 // =======================================================
-// FUNÇÃO DE RENDERIZAÇÃO DA PÁGINA DE CONFIGURAÇÃO (ATUALIZADA)
+// FUNÇÃO DE RENDERIZAÇÃO DA PÁGINA DE CONFIGURAÇÃO
 // =======================================================
 
 function showTopicConfig() {
@@ -280,6 +280,32 @@ function deleteModule(subjectKey, moduleName) {
     }
 }
 
+// =======================================================
+// FUNÇÃO DE EDIÇÃO RICH TEXT (NOVA)
+// =======================================================
+
+/**
+ * Aplica comandos de formatação ao texto selecionado (negrito, itálico, listas, etc.).
+ * @param {string} command - O comando execCommand (ex: 'bold', 'italic', 'insertUnorderedList').
+ * @param {string} saveId - O ID do tópico.
+ * @param {boolean} isFullEditor - Se está usando o editor de notas em tela cheia.
+ */
+function applyFormat(command, saveId, isFullEditor = false) {
+    // Determina o ID do editor correto (inline ou full-screen)
+    const editorId = isFullEditor ? `note-content-${saveId}-full-editor` : `${saveId}-note-editor`;
+    const editor = document.getElementById(editorId);
+    
+    if (editor) {
+        editor.focus();
+        document.execCommand(command, false, null);
+        
+        // Se for o editor inline (não full), salva automaticamente.
+        if (!isFullEditor) { 
+            saveInlineNote(saveId); 
+        }
+    }
+}
+
 
 // --- Funções de Visualização e Lógica de Subtópicos ---
 
@@ -371,6 +397,8 @@ function showSubject(subjectKey) {
             
             const simpleStatus = localStorage.getItem(saveId + '-status') || 'Não iniciado';
             const hasNote = localStorage.getItem(saveId + '-notes');
+            // MUDANÇA: O hasNote agora verifica se o conteúdo HTML tem algum texto visível.
+            const hasVisibleContent = hasNote && hasNote.replace(/<[^>]*>/g, '').trim().length > 0;
 
             let statusHtmlBlock = '';
             
@@ -394,7 +422,8 @@ function showSubject(subjectKey) {
                 statusHtmlBlock = `<span class="topic-status-display ${statusClass}">${topicStatus}</span>`;
             }
             
-            const noteButtonHtml = `<button class="btn-note ${hasNote ? 'has-note' : ''}" onclick="toggleNoteArea('${saveId}', '${cleanTopicText}')">📝 Nota</button>`;
+            // MUDANÇA: Use hasVisibleContent para o botão
+            const noteButtonHtml = `<button class="btn-note ${hasVisibleContent ? 'has-note' : ''}" onclick="toggleNoteArea('${saveId}', '${cleanTopicText}')">📝 Nota</button>`;
 
             // Abre um novo container principal
             htmlContent += `
@@ -407,12 +436,24 @@ function showSubject(subjectKey) {
                         </div>
                     </div>
                     
-                    <div class="note-input-area ${hasNote ? '' : 'hidden'}" id="${saveId}-note-area">
-                        <label for="${saveId}-note-textarea" style="color:var(--accent-color);">Anotações de ${cleanTopicText}:</label>
-                        <textarea 
-                            id="${saveId}-note-textarea" 
-                            onblur="saveInlineNote('${saveId}')" 
-                            placeholder="Digite suas anotações aqui. O salvamento é automático ao sair do campo."></textarea>
+                    <div class="note-input-area ${hasVisibleContent ? '' : 'hidden'}" id="${saveId}-note-area">
+                        <label for="${saveId}-note-editor" style="color:var(--accent-color); font-weight: bold; margin-bottom: 5px; display: block;">Anotações de ${cleanTopicText}:</label>
+                        
+                        <div class="rich-text-editor-container">
+                            <div class="rich-text-toolbar">
+                                <button onclick="applyFormat('bold', '${saveId}')" title="Negrito">B</button>
+                                <button onclick="applyFormat('italic', '${saveId}')" title="Itálico">I</button>
+                                <button onclick="applyFormat('insertUnorderedList', '${saveId}')" title="Lista de Tópicos">UL</button>
+                                <button onclick="applyFormat('insertOrderedList', '${saveId}')" title="Lista Numerada">OL</button>
+                            </div>
+                            <div 
+                                id="${saveId}-note-editor" 
+                                class="rich-text-content"
+                                contenteditable="true"
+                                onblur="saveInlineNote('${saveId}')"
+                                placeholder="Digite suas anotações aqui. O salvamento é automático ao sair do campo."
+                            >${hasNote || ''}</div>
+                        </div>
                     </div>
 
                     <div class="subtopic-area" id="${topicId}-subarea">
@@ -423,6 +464,8 @@ function showSubject(subjectKey) {
             
             const savedStatus = localStorage.getItem(saveId + '-status') || 'Não iniciado';
             const hasNote = localStorage.getItem(saveId + '-notes');
+            const hasVisibleContent = hasNote && hasNote.replace(/<[^>]*>/g, '').trim().length > 0;
+
 
             let statusClass = '';
             if (savedStatus === 'Não iniciado') {
@@ -433,7 +476,7 @@ function showSubject(subjectKey) {
                 statusClass = 'status-concluido';
             }
             
-            const noteButtonHtml = `<button class="btn-note ${hasNote ? 'has-note' : ''}" onclick="toggleNoteArea('${saveId}', '${cleanTopicText}')">📝 Nota</button>`;
+            const noteButtonHtml = `<button class="btn-note ${hasVisibleContent ? 'has-note' : ''}" onclick="toggleNoteArea('${saveId}', '${cleanTopicText}')">📝 Nota</button>`;
 
 
             htmlContent += `
@@ -455,12 +498,25 @@ function showSubject(subjectKey) {
                             </select>
                         </div>
                     </div>
-                    <div class="note-input-area ${hasNote ? '' : 'hidden'}" id="${saveId}-note-area">
-                        <label for="${saveId}-note-textarea" style="font-style: italic;">Anotação:</label>
-                        <textarea 
-                            id="${saveId}-note-textarea" 
-                            onblur="saveInlineNote('${saveId}')" 
-                            placeholder="Digite suas anotações aqui. O salvamento é automático ao sair do campo."></textarea>
+                    
+                    <div class="note-input-area ${hasVisibleContent ? '' : 'hidden'}" id="${saveId}-note-area">
+                        <label for="${saveId}-note-editor" style="font-style: italic; font-weight: bold; margin-bottom: 5px; display: block;">Anotação:</label>
+                        
+                        <div class="rich-text-editor-container">
+                             <div class="rich-text-toolbar">
+                                <button onclick="applyFormat('bold', '${saveId}')" title="Negrito">B</button>
+                                <button onclick="applyFormat('italic', '${saveId}')" title="Itálico">I</button>
+                                <button onclick="applyFormat('insertUnorderedList', '${saveId}')" title="Lista de Tópicos">UL</button>
+                                <button onclick="applyFormat('insertOrderedList', '${saveId}')" title="Lista Numerada">OL</button>
+                            </div>
+                            <div 
+                                id="${saveId}-note-editor" 
+                                class="rich-text-content"
+                                contenteditable="true"
+                                onblur="saveInlineNote('${saveId}')"
+                                placeholder="Digite suas anotações aqui. O salvamento é automático ao sair do campo."
+                            >${hasNote || ''}</div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -504,33 +560,40 @@ function saveTopicProgress(saveId, saveOnlyStatus) {
     showSubject(currentSubjectKey);
 }
 
-// --- Funções de Anotação e Toggle Inline ---
+// --- Funções de Anotação e Toggle Inline (ATUALIZADAS PARA HTML) ---
 
 function toggleNoteArea(saveId, topicName) {
     const area = document.getElementById(saveId + '-note-area');
-    const noteTextarea = document.getElementById(saveId + '-note-textarea');
+    // MUDANÇA: Pegar o div contenteditable
+    const noteEditor = document.getElementById(saveId + '-note-editor');
     const hasNote = localStorage.getItem(saveId + '-notes');
 
     if (area.classList.contains('hidden')) {
         area.classList.remove('hidden');
-        noteTextarea.value = hasNote || '';
-        noteTextarea.focus();
+        // MUDANÇA: Carrega o conteúdo como HTML (innerHTML)
+        noteEditor.innerHTML = hasNote || ''; 
+        noteEditor.focus();
     } else {
         area.classList.add('hidden');
     }
 }
 
 function saveInlineNote(saveId) {
-    const noteTextarea = document.getElementById(saveId + '-note-textarea');
-    if (!noteTextarea) return;
+    // MUDANÇA: Pegar o div contenteditable
+    const noteEditor = document.getElementById(saveId + '-note-editor');
+    if (!noteEditor) return;
 
-    const newNote = noteTextarea.value.trim();
+    // MUDANÇA: Pega o conteúdo HTML
+    const newNote = noteEditor.innerHTML.trim(); 
     const oldNote = localStorage.getItem(saveId + '-notes');
     
     localStorage.setItem(saveId + '-notes', newNote);
 
     const currentStatus = localStorage.getItem(saveId + '-status');
-    if (newNote && currentStatus === 'Não iniciado') {
+    // Verifica se o texto visível (sem tags HTML) é vazio
+    const hasContent = noteEditor.textContent.trim().length > 0; 
+    
+    if (hasContent && currentStatus === 'Não iniciado') {
         localStorage.setItem(saveId + '-status', 'Em andamento');
     }
     
@@ -542,7 +605,7 @@ function saveInlineNote(saveId) {
 }
 
 // =========================================================================
-// FUNÇÕES DE EDIÇÃO E EXCLUSÃO DE NOTAS (PÁGINA TODAS AS ANOTAÇÕES)
+// FUNÇÕES DE EDIÇÃO E EXCLUSÃO DE NOTAS (PÁGINA TODAS AS ANOTAÇÕES - ATUALIZADAS)
 // =========================================================================
 
 function showAllNotes() {
@@ -559,7 +622,8 @@ function showAllNotes() {
             const saveId = `${subjectKey}-${index}`;
             const note = localStorage.getItem(saveId + '-notes');
 
-            if (note && note.trim() !== '') {
+            // MUDANÇA: Verifica se a nota tem conteúdo visível (remove tags HTML para verificar se há texto)
+            if (note && note.replace(/<[^>]*>/g, '').trim() !== '') {
                 hasNotesInSubject = true;
                 totalNotes++;
                 const isSubtopic = topicText.startsWith('-');
@@ -585,10 +649,23 @@ function showAllNotes() {
                             </button>
                         </div>
                         
-                        <label for="note-content-${saveId}" class="note-section-label">Conteúdo da Anotação:</label>
-                        <textarea id="note-content-${saveId}" 
-                            class="note-content-textarea"
-                        >${note}</textarea>
+                        <label class="note-section-label" style="margin-top:10px;">Conteúdo da Anotação (Editor):</label>
+                        
+                        <div class="rich-text-editor-container" style="max-height: none;">
+                            <div class="rich-text-toolbar">
+                                <button onclick="applyFormat('bold', '${saveId}', true)" title="Negrito">B</button>
+                                <button onclick="applyFormat('italic', '${saveId}', true)" title="Itálico">I</button>
+                                <button onclick="applyFormat('insertUnorderedList', '${saveId}', true)" title="Lista de Tópicos">UL</button>
+                                <button onclick="applyFormat('insertOrderedList', '${saveId}', true)" title="Lista Numerada">OL</button>
+                            </div>
+                            <div 
+                                id="note-content-${saveId}-full-editor" 
+                                class="rich-text-content"
+                                contenteditable="true"
+                                style="min-height: 200px; max-height: 400px;"
+                            >${note}</div>
+                        </div>
+                        
 
                         <div class="note-actions-footer">
                              <button class="btn-delete-note" 
@@ -604,7 +681,7 @@ function showAllNotes() {
         // Adiciona o título do módulo se houver notas para ele
         if (subjectNotesHtml) {
              html += `<h2 style="color: var(--text-color-dark); margin-top:20px; border-bottom: 1px solid var(--card-border); padding-bottom: 5px;">${subject.title}</h2>`;
-            html += subjectNotesHtml;
+             html += subjectNotesHtml;
         }
     });
 
@@ -619,11 +696,12 @@ function showAllNotes() {
 }
 
 /**
- * Salva o conteúdo da nota e, opcionalmente, atualiza o nome do tópico no defaultData.
+ * Salva o conteúdo da nota (HTML) e, opcionalmente, atualiza o nome do tópico no defaultData.
  */
 function saveFullNote(subjectKey, topicIndex, saveId) {
     const newTitle = document.getElementById(`note-title-${saveId}`).value.trim();
-    const newContent = document.getElementById(`note-content-${saveId}`).value.trim();
+    // MUDANÇA: Pega o conteúdo HTML do novo editor
+    const newContent = document.getElementById(`note-content-${saveId}-full-editor`).innerHTML.trim(); 
     
     // 1. Salva o novo conteúdo da nota no localStorage
     localStorage.setItem(saveId + '-notes', newContent);
