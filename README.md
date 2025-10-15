@@ -32,7 +32,10 @@ O projeto foi organizado em três arquivos principais para melhor manutenção:
 O projeto é 100% *client-side* (executa apenas no navegador) e não requer instalação de pacotes ou servidor:
 
 1.  **Clone o Repositório:**
+
     ```bash
 git clone [https://github.com/byancabsc/dashboard-estudos-js.git](https://github.com/byancabsc/dashboard-estudos-js.git)    ```
+
 2.  **Abra o Arquivo:** Navegue até a pasta e dê um **duplo clique** no arquivo `index.html`.
+
 3.  **Hospedagem no GitHub Pages:** Você pode visualizar o projeto online gratuitamente ativando o **GitHub Pages** nas configurações do repositório, apontando para o branch `main` e a pasta `/root`.
